@@ -29,7 +29,7 @@ class OrdemDeServicoForm extends TPage
         $telefone       = new TEntry('telefone');
         $placa          = new TEntry('placa');
         $veiculo        = new TEntry('veiculo');
-        $data           = new TDate('created_at');
+        $data           = new TDate('data_hoje');
         
         $id->setSize(100);
         $nome->setSize('100%');
@@ -104,7 +104,7 @@ class OrdemDeServicoForm extends TPage
     {
         try
         {
-            TTransaction::open('samples');
+            TTransaction::open('lavagem');
             
             if (isset($param['key']))
             {
@@ -212,10 +212,10 @@ class OrdemDeServicoForm extends TPage
         try
         {
             // open a transaction with database 'samples'
-            TTransaction::open('samples');
+            TTransaction::open('lavagem');
             
             $id = (int) $param['id'];
-            $sale = new Sale($id);
+            $sale = new Ordem_Servico($id);
             $sale->date = $param['date'];
             $sale->customer_id = $param['customer_id'];
             $sale->obs = $param['obs'];
