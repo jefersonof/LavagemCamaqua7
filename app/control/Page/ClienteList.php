@@ -1,101 +1,99 @@
 <?php
-class ClienteList Extends TPage
-{
-    private $form;
+
+class ClienteList extends TPage
+{	
+	private $form;
 	private $datagrid;
 	private $pageNavigation;
 
-    
-	
 	public function __construct()
 	{
 		parent::__construct();
 		
 		//cria o form
-		$this->form = new BootstrapFormBuilder('Lista de Clientes');//BootstrapFormBuilder
+		$this->form = new BootstrapFormBuilder('formCliente');
 		$this->form->setFieldSizes('100%');
-		$this->form->class = 'tform';
+		//$this->form->style = 'width:100%'; 
+		$this->form->class = 'tform'; 
 		
-		//cria os atributos
-		$nome = new TEntry('nome');//tipocto
-		$nome->setValue(TSession::getValue('TS_nome'));//tipocto
+		//cria os atributo
+		$nome       = new TEntry('nome');
+		$placa      = new TEntry('placa');
 
-         //recupera a sessão
-        $placa = new TEntry('placa');//tipocto
-		$placa->setValue(TSession::getValue('TS_placa'));//tipocto
-        
+		//recupera a sessão
+		$placa->setValue( TSession::getValue('TS_placa'));
+		$nome->setValue( TSession::getValue('TS_nome')) ;
+
+		//cria o botão
+		$btn_fechar = TButton::create('btn_fechar', array($this, 'onReload'), 'Fechar', 'fa: fa-power-off red');			
+		$btn_limpar = TButton::create('btn_limpar', array($this, 'onClear'), 'Limpar', 'fa:eraser red');
 		
-		//cria os Btn
-		$btn_fechar = TButton::create('btn_fechar', array('ClienteForm1', 'onEdit'), 'Cadastrar Cliente', 'fa:plus');
+		//formatação
+		$nome->setSize('100%');
+		$placa->setSize('100%');
+
+		//add os atributos dentro do form
+		$row = $this->form->addfields( [ new  TLabel('Nome'), $nome ],
+								       [ new TLabel('Placa'), $placa ]);
+		$row->layout = ['col-sm-8', 'col-sm-4'];							   
 		
-		$row = $this->form->addFields( [ new TLabel('Nome'), $nome ], [new TLabel('Placa'), $placa ]);
-		$row->layout = ['col-sm-8','col-sm-4'];
+		//add as ações do form
+		$this->form->addAction('Pesquisar' ,new TAction(array($this, 'onSearch')), 'fa:search');
+		$this->form->addAction('limpar' ,new TAction(array($this, 'onClear')), 'fa:eraser red');
 		
-		//cria as ações do form
-		$this->form->addAction('Pesquisar', new TAction(array($this, 'onSearch')), 'fa:search' );
-		
-		$this->form->addAction ('Cadastrar Cliente', new TAction(array('ClienteForm1', 'onEdit')), 'fa: fa-power-off red');
-		
-		//cria o datagrid
-		$this->datagrid = new TQuickGrid;
+		//cria a grid
+		$this->datagrid = new BootstrapDatagridWrapper(new TQuickGrid);
 		$this->datagrid->style = 'width:100%';
-		//$this->datagrid->makeScrollable(); 
-		$this->datagrid->DisableDefaultClick(); //DisableDefaultClick
-		//$this->datagrid->SetHeight(300);
-		$this->datagrid->addQuickColumn('Código', 'id', 'center');
-		$this->datagrid->addQuickColumn('Nome', 'nome', 'center', '30%');
-		$this->datagrid->addQuickColumn('Placa', 'placa', 'center');
-		$this->datagrid->addQuickColumn('Telefone', 'telefone', 'center');
+		$this->datagrid->DisableDefaultClick();
 		
-		//ações da grid 'Excluir' / 'Editar'
-		$this->datagrid->addQuickAction('Editar' ,new TDataGridAction(array('ClienteForm', 'onEdit')), 'id', 'fa:edit blue');
-		
-		//if($permissao_geral['delecao'] == 1)
-		//{
-		$this->datagrid->addQuickAction('Excluir' ,new TDataGridAction(array($this, 'onDelete')), 'id', 'far:trash-alt red' );	
-		
-		$this->datagrid->CreateModel();
+		$this->datagrid->addQuickColumn('Id', 'id', 'center', '10%');
+		$this->datagrid->addQuickColumn('Nome', 'nome', 'center', '70%');
+		$this->datagrid->addQuickColumn('Placa', 'placa', 'center', '20%');
 
-        //informa os campos do form
-		$this->formFields =  array($nome, $placa);
+		//cria as ações da grid
+		$this->datagrid->addQuickAction('Editar' ,new TDataGridAction(array('ClienteForm', 'onEdit')), 'id', 'fa:edit blue' );//fa:edit blue
+		
+		$this->datagrid->addQuickAction('Excluir', new TDataGridAction(array($this, 'onDelete')), 'id', 'far:trash-alt red' );//far:trash-alt red
+		
+		$this->datagrid->createModel();
+		
+		//informa os campos do form
+		$this->formFields =  array($nome, $placa, $btn_fechar, $btn_limpar);
 		
 		//add os campos no form
 		$this->form->setFields($this->formFields);
 		
-		//cria o paginador
+		//pageNavigation
 		$this->pageNavigation = new TPageNavigation();
-		$this->pageNavigation->enableCounters(); 
+		$this->pageNavigation->enableCounters();
 		$this->pageNavigation->setAction(new TAction(array($this, 'onReload')));
 		$this->pageNavigation->setWidth($this->datagrid->getWidth());
 		
-		//empacotamento
-		$panelGroup = new TPanelGroup('Lista de Cliente');
+		//Empacotamento
+		$painel = new TPanelGroup('Lista de Clientes');
 		
-		$panelGroup->add($this->form);
-		$panelGroup->add($this->datagrid);
-		$panelGroup->add($this->pageNavigation);
+		$painel->add($this->form);
+		$painel->add($this->datagrid);
+		$painel->add($this->pageNavigation);
 		
-		//rodape da pagina
-		$panelGroup->addFooter(THBox::pack());
+		//add os btn no footer da pagina
+		$painel->addFooter(THBox::pack($btn_fechar, $btn_limpar ));
 		
-		//ativar a rolagem horizontal dentro do corpo do painel
-        $panelGroup->getBody()->style = "overflow-x:auto;";
-		
+		// ativar a rolagem horizontal dentro do corpo do painel
+        $painel->getBody()->style = "overflow-x:auto;";
 		
 		//add o painel em tela
 		$menuBread = new TXMLBreadCrumb('menu.xml', __CLASS__);
-		//$menuBread->style = 'margin:0 0 0 30px';	
 		
 		$vbox = new TVBox;
 		$vbox->style = 'width:90%';
         $vbox->add($menuBread);
-        $vbox->add($panelGroup);
-		
-        parent::add($vbox);
-		
-		
+        $vbox->add($painel);
+        //$vbox->add($this->pageNavigation);
+
+        parent::add($vbox);		
 	}//__construct
-	
+
 	/*
 	Atualiza a página com os parâmetros atuais
 	*/
@@ -103,11 +101,11 @@ class ClienteList Extends TPage
 	{
 		try
 		{
-			TTransaction::open('lavagem');
+			TTransaction::open('lavagem');//db//db2//
 			
-			//$data = $this->form->getData();
+			//var_dump(TSession::getValue('TS_cliente2'));
+			$rp_cliente = new TRepository('cliente');
 			
-			$rp_cobertura = new TRepository('Cliente');
 			$criteria = new TCriteria;
 			
 			//set as propriedades
@@ -115,122 +113,105 @@ class ClienteList Extends TPage
 			$criteria->setProperty('order','id');//NOME
 			$criteria->setProperty('direction','ASC');
 			$criteria->setProperty('limit',2);
+			
+			$criteria->setProperties($param);
+			
+			if(TSession::getValue('TS_localiza_nome') ) 
+			{	
+				$criteria->add(TSession::getValue('TS_localiza_nome'));
 
-            $criteria->setProperties($param);
+			}//TS_localiza_nome
 			
-			if(TSession::getValue('TS_filter_nome'))
-			{
-				$criteria->add(TSession::getValue('TS_filter_nome'));
-			}
-			
-			if(TSession::getValue('TS_filter_placa'))
-			{
-				$criteria->add(TSession::getValue('TS_filter_placa'));
-			}
-			
+			if(TSession::getValue('TS_localiza_placa') ) 
+			{	
+				$criteria->add(TSession::getValue('TS_localiza_placa'));
 
-			$cobertura =  $rp_cobertura->load($criteria);	
+			}//TS_localiza_nome
 			
-			$this->datagrid->clear();
-			foreach($cobertura as $coberturas)
+			$obj_cliente = $rp_cliente->load($criteria);
+			
+			TSession::setValue('TS_cliente', $obj_cliente);
+			
+			$this->datagrid->Clear();
+			if($obj_cliente)
 			{
-				//$coberturas->ENT_GAR = $coberturas->entgarantidora->NOME;
+				foreach($obj_cliente as $obj_clientes)
+				{
+					//$obj_clientes->nome = utf8_encode($obj_clientes->NOME);
+					$this->datagrid->addItem($obj_clientes);
+					
+				}//foreach
 				
-				$this->datagrid->additem($coberturas);
-			}
+			}//obj_cliente
+			
 			
 			$criteria->resetProperties();
-			$count = $rp_cobertura->count( $criteria ); 
+			$count = $rp_cliente->count( $criteria ); 
 
             $this->pageNavigation->setCount ( $count );
             $this->pageNavigation->setProperties ( $param );
             $this->pageNavigation->setlimit(2);
 			
-			
+			TTransaction::close();
 			//$this->form->setData($data);
 			
-			TTransaction::close();
-			
-		}
+		}//try
 		catch(Exception $e)
 		{
 			new TMessage('error', $e->getMessage() );
 			TTransaction::rollback();
 		}
-	}//onReload
+		
+	}//onReload	
 	
+	public function onTeste($param)
+	{
+		$partes = explode("-", $param['nome_cliente']);
+		$antes_barra  =  $partes[0]; 	
+		$depois_barra =  $partes[1]; 
+		
+		echo '<pre>';
+			var_dump($antes_barra) . '<br>';
+			var_dump($depois_barra);
+		echo '</pre>';
+		
+		echo '<pre>';
+			var_dump($param['nome_cliente']);
+		echo '</pre>';
+		
+	}//onTeste
+	
+	public function onTeste2($param)
+	{	
+		echo '<pre>';
+			var_dump($param['CPF']);
+		echo '</pre>';
+		
+	}//onTeste
 	
 	/*
-	Grava os filtros de busca na sessão e chama o onReload()
-	*/
-	public function onSearch($param)
-	{
-        $data = $this->form->getData();
-        
-        if($data->nome)
-        {
-            $filter = new TFilter('nome', 'like', "%$data->nome%");
-            TSession::setValue('TS_filter_nome', $filter);
-            TSession::setValue('TS_nome', $data->nome);
-        }
-        else
-        {
-            TSession::setValue('TS_filter_nome', NULL);
-        }	
-        
-        if($data->placa)
-        {
-            $filter = new TFilter('placa', 'like', "$data->placa");
-            TSession::setValue('TS_filter_placa', $filter);//
-            TSession::setValue('TS_placa', $data->placa);
-        }
-        else
-        {
-            TSession::setValue('TS_filter_placa', NULL);
-        }		
-        
-        $param = array();
-        $param['offset'] = 0;
-        $param['first_page'] = 1;
-        
-        $this->onReload($param);	
-        
-        $this->form->setData($data);
-		
-	}//onSearch
-
-    /*
-	  Questiona a exclusão de uma 'cobertura'
+	Questiona a exclusão de um 'cliente'
 	*/
 	public function onDelete($param)
 	{
-		try
-		{
-			TTransaction::open('lavagem');
-			
-			$key = $param['key'];
-			$cobertura =  new cobertura($key);
-			$cobNome =  $cobertura->COBERTURA;
-			
-			$onSimDelete = new TAction( array($this ,'onSimDelete'));
-			$onSimDelete->setParameter('id', $key);
-			
-			//$ac_onSim->setParameter('ID_PLANOS_SUSEP', $key);
-			
-			new TQuestion('Deseja apagar '. '"' . $cobNome . '"' , $onSimDelete);
-			
-			TTransaction::close();
-		}
-		catch(Exception $e)
-		{
-			new TMessage('error', $e->getMessage() );
-			TTransaction::rollback();
-		}
+		TTransaction::open('lavagem');//db2
+		
+		$key = $param['key'];
+		$cliente = new cliente($key);
+		
+		$nome = $cliente->NOME;
+		
+		$onsim = new TAction(array($this, 'onSimDelete'));
+		$onsim->setParameter('id', $key );
+		
+		new TQuestion('Deseja apagar o cliente ' . ' " ' . $nome . ' " ', $onsim );
+		
+		TTransaction::close();
 		
 	}//onDelete
 	
 	/*
-	Exclui uma 'cobertura'
+	exclui um 'cliente'
 	*/
 	public function onSimDelete($param)
 	{
@@ -238,32 +219,129 @@ class ClienteList Extends TPage
 		{
 			TTransaction::open('lavagem');
 			
-			$key = $param['id'];
-			$rp_cobertura = new TRepository('cliente');
+			$rp_cliente = new TRepository('cliente');
+			
 			$criteria = new TCriteria;
-			$criteria->add(new TFilter('id', '=', $key));
+			$criteria->add(new TFilter('id', '=', $param['id'] ));
 			
-			$rp_cobertura->delete($criteria);
-			
-			//new TMessage('indo', 'Registro apagado');
+			$rp_cliente->delete($criteria);
 			
 			TTransaction::close();
 			
 			$this->onReload($param);
 			
+			new TMessage('info', 'Cliente apagado' );
 			
 		}
-		catch(Excepition $e)
+		catch(Exception $e  )
 		{
-			new TMessage('error', $e->getMessage() );
 			TTransaction::rollback();
+			new TMessage('error', $e->getMessage() );
 		}
-		
 	}//onSimDelete
 	
+	
 	/*
-	captura as parametros da URL e atualiza o onReload
+	Grava os filtros de busca na sessão e chama o onReload()
 	*/
+	public function onSearch($param)
+	{
+		try
+		{
+			$data = $this->form->getData();
+			//$data = utf8_decode($data1);
+			
+			if($data->nome)
+			{
+				$filter	= new TFilter('nome', 'LIKE', "%$data->nome%");
+				TSession::setValue('TS_localiza_nome', $filter);
+				TSession::setValue('TS_nome', $data->nome);
+			}
+			else
+			{
+				TSession::setValue('TS_localiza_nome', NULL);
+				TSession::setValue('TS_nome', NULL);
+			}//CPF
+			
+			if($data->placa)
+			{
+				$filter	= new TFilter('placa', 'LIKE', "%$data->placa%");
+				TSession::setValue('TS_localiza_placa', $filter);
+				TSession::setValue('TS_placa', $data->placa);
+			}
+			else
+			{
+				TSession::setValue('TS_localiza_placa', NULL);
+				TSession::setValue('TS_placa', NULL);
+			}//MATR_INTERNA
+
+			/*if($data->NOME)
+			{
+				//$data->NOME = utf8_decode($data->NOME);
+				$i = $data->NOME;
+				$data->NOME = $this->onTiraAcentos($i);
+				$filter	= new TFilter($this->onTiraAcentos('NOME'), 'LIKE', "%$data->NOME%");
+				TSession::setValue('TS_localiza_nome', $filter);
+				$data->NOME = utf8_encode($data->NOME);
+				TSession::setValue('TS_relacao_nome', $data->NOME);
+			}
+			else
+			{
+				TSession::setValue('TS_localiza_nome', NULL);
+				TSession::setValue('TS_relacao_nome', NULL);
+			}//NOME*/
+			
+			$param = array();
+			$param['offset'] = 0;
+			$param['first_page'] = 1;
+			$this->form->getdata();
+			
+			$this->onReload( $param );
+			
+			$this->form->setData($data);
+			
+			//habilita o btn 'Imprime lista' 
+			//TButton::enableField('formCliente', 'btn_pdf');
+			
+		}//try
+		catch(Exception $e)
+		{
+			new TMessage('error', $e->getMessage() );
+			
+			//limpa a datagrid
+			$this->datagrid->clear();
+		}
+		
+	}//onSearch
+	
+	
+	public function onTiraAcentos($i)
+	{
+		return preg_replace(array("/(á|à|ã|â|ä|Á|À|Ã|Â|Ä)/","/(é|è|ê|ë|É|È|Ê|Ë)/","/(í|ì|î|ï|Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö|Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü|Ú|Ù|Û|Ü)/","/(ñ|Ñ)/","/(ç|Ç)/","/(ý|ÿ|Ý)/"),explode(" ","a e i o u n c y"),$i);
+	}//onTiraAcentos
+	
+	/*
+	Limpa o form e as variaveis de sessão
+	*/
+	public function onClear($param)
+	{
+		//Reseta as TEntry 		
+		TSession::setValue('TS_nome', NULL);//TS_localiza_nome
+		TSession::setValue('TS_placa', NULL);
+		
+		//Reseta os TFilter
+		TSession::setValue('TS_localiza_nome', NULL);
+		TSession::setValue('TS_localiza_placa', NULL);//TS_localiza_nome
+		
+		$this->form->clear();
+		//$this->datagrid->clear() ;
+		
+		$this->onReload($param);
+		//TButton::disableField('formAssossiado', 'btn_pdf');	
+		
+	}//onClear
+	
+	
 	public function show()
     {
         // check if the datagrid is already loaded
@@ -274,47 +352,7 @@ class ClienteList Extends TPage
         parent::show();
     }
 	
-	/*
-	Limpa o form e as variaveis de sessão
-	*/
-	public function onClear()
-	{
-		$data = $this->form->getData();
-		$this->datagrid->clear();
-		//$this->form->clear();
-		
-		//TSession::setValue('TS_tipocto', NUll);
-		//TSession::setValue('TS_tipocto', array() );
-		
-		TSession::setValue('TS_filter_a', NUll);
-		TSession::setValue('TS_filter_s', NUll);
-		TSession::setValue('TS_filter_p', NUll);
-		
-		$this->form->setData($data);
-		
-	}//onClear	
 	
-	
-	
-		
-	
-	/*
-	FILTRO DELPHI
-	Coberturas List
-	  begin
-	  if ckTipoCto.Checked = true then
-	  begin
-		dmdbx.sdsCob.Filter := 'TIPO ='+ QuotedStr(dmdbx.sdsParametrosMOD_ARQ.AsString);
-		dmdbx.sdsCob.Filtered := true;
-	  end
-	  else
-	  begin
-		dmdbx.sdsCob.Filtered := false;
-	*/
-	
-	//https://www.youtube.com/watch?v=hwulmocF1GQ
-	
-}//TPage
-
+}//Twindow
 
 ?>
