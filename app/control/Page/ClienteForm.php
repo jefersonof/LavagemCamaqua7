@@ -46,20 +46,9 @@ class ClienteForm extends TPage
         $endereco = new TEntry('endereco');
         $numero = new TEntry('numero');
         $complento = new TEntry('complento');
-        $created_at = new TDateTime('created_at');
-        $update_at = new TDateTime('update_at');
-        $deleted_at = new TDateTime('deleted_at');
-
-
+      
         $id->setEditable(false);
-        $update_at->setMask('dd/mm/yyyy hh:ii');
-        $created_at->setMask('dd/mm/yyyy hh:ii');
-        $deleted_at->setMask('dd/mm/yyyy hh:ii');
-
-        $update_at->setDatabaseMask('yyyy-mm-dd hh:ii');
-        $created_at->setDatabaseMask('yyyy-mm-dd hh:ii');
-        $deleted_at->setDatabaseMask('yyyy-mm-dd hh:ii');
-
+        
         $placa->setMaxLength(8);
         $nome->setMaxLength(255);
         $numero->setMaxLength(10);
@@ -71,14 +60,9 @@ class ClienteForm extends TPage
         $nome->setSize('100%');
         $placa->setSize('100%');
         $numero->setSize('100%');
-        $update_at->setSize(150);
         $veiculo->setSize('100%');
-        $created_at->setSize(150);
-        $deleted_at->setSize(150);
         $endereco->setSize('100%');
         $complento->setSize('100%');
-
-
 
         //<onBeforeAddFieldsToForm>
 
@@ -92,11 +76,8 @@ class ClienteForm extends TPage
         $row3 = $this->form->addFields([new TLabel("Endereco:", null, '14px', null, '100%'),$endereco],[new TLabel("Numero:", null, '14px', null, '100%'),$numero]);
         $row3->layout = ['col-sm-6','col-sm-6'];
 
-        $row4 = $this->form->addFields([new TLabel("Complento:", null, '14px', null, '100%'),$complento],[new TLabel("Criado em:", null, '14px', null, '100%'),$created_at]);
-        $row4->layout = ['col-sm-6','col-sm-6'];
-
-        $row5 = $this->form->addFields([new TLabel("Atualizado em:", null, '14px', null, '100%'),$update_at],[new TLabel("Deletado em:", null, '14px', null, '100%'),$deleted_at]);
-        $row5->layout = ['col-sm-6','col-sm-6'];
+        $row4 = $this->form->addFields([new TLabel("Complento:", null, '14px', null, '100%'),$complento]);
+        $row4->layout = ['col-sm-12'];
 
         //<onAfterFieldsCreation>
 
@@ -109,12 +90,6 @@ class ClienteForm extends TPage
 
         $btn_onclear = $this->form->addAction("Limpar formulário", new TAction([$this, 'onClear']), 'fas:eraser #dd5a43');
         $this->btn_onclear = $btn_onclear;
-
-        //$btn_onshow = $this->form->addAction("Listar cliente", new TAction(['ClienteHeaderList', 'onShow']), 'fas:arrow-left #000000');
-        //$this->btn_onshow = $btn_onshow;
-
-        //$btn_onshow = $this->form->addAction("Ordem de serviço", new TAction(['OrdemServicoForm', 'onShow']), 'fas:car #03A9F4');
-        //$this->btn_onshow = $btn_onshow;
 
         parent::setTargetContainer('adianti_right_panel');
 
