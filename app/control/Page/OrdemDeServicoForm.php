@@ -3,7 +3,7 @@
  * SaleForm Registration
  * @author  <your name here>
  */
-class SaleMultiValueForm extends TPage
+class OrdemDeServicoForm extends TPage
 {
     protected $form; // form
     protected $dt_venda;
@@ -24,37 +24,38 @@ class SaleMultiValueForm extends TPage
         
         // master fields
         $id             = new TEntry('id');
-        $date           = new TDate('date');
-        $customer_id    = new TDBSeekButton('customer_id', 'samples', $this->form->getName(), 'Customer', 'name', 'customer_id', 'customer_name');
-        $customer_name  = new TEntry('customer_name');
-        $obs            = new TText('obs');
+        $cliente_id     = new TEntry('cliente_id');
+        $nome           = new TEntry('nome');
+        $telefone       = new TEntry('telefone');
+        $placa          = new TEntry('placa');
+        $veiculo        = new TEntry('veiculo');
+        $data           = new TDate('created_at');
         
-        $id->setSize(40);
-        $id->setEditable(false);
-        $date->setSize(140);
-        $obs->setSize('100%',50);
-        $customer_id->setSize(50);
-        $customer_name->setEditable(false);
-        $customer_name->setSize('calc(100% - 200px)');
+        $id->setSize(100);
+        $nome->setSize('100%');
+        $telefone->setSize('100%');
+        $placa->setSize('100%');
+        $veiculo->setSize('100%');
+        $data->setSize('100%');
         
-        $date->addValidation('Date', new TRequiredValidator);
-        $customer_id->addValidation('Customer', new TRequiredValidator);
+        $cliente_id->addValidation('cliente_id', new TRequiredValidator);
+        //$date->addValidation('Date', new TRequiredValidator);
         
-        $label_date     = new TLabel('Date (*)');
-        $label_customer = new TLabel('Customer (*)');
-        
-        $this->form->addFields( [new TLabel('ID')], [$id] );
-        $this->form->addFields( [$label_date], [$date] );
-        $this->form->addFields( [$label_customer], [$customer_id, $customer_name] );
-        $this->form->addFields( [new TLabel('Obs')], [$obs] );
-        
-        $label_date->setFontColor('#FF0000');
+        //$label_date   = new TLabel('Date (*)');
+        $row1 = $this->form->addFields([new TLabel("Id:", null, '14px', null, '100%'),$id],[new TLabel("Data:", null, '14px', null, '100%'),$data]);
+        $row1->layout = ['col-sm-6','col-sm-6'];
+
+        $row2 = $this->form->addFields([new TLabel("Código do Cliente:", null, '14px', null, '100%'),$cliente_id],[new TLabel("Nome:", null, '14px', null, '100%'),$nome],[new TLabel("Telefone:", null, '14px', null, '100%'),$telefone]);
+        $row2->layout = ['col-sm-2','col-sm-6', 'col-sm-4'];
+
+        $row3 = $this->form->addFields([new TLabel("Veiculo:", null, '14px', null, '100%'),$veiculo],[new TLabel("Placa do Veículo:", null, '14px', null, '100%'),$placa]);
+        $row3->layout = ['col-sm-6','col-sm-6'];
         
         // create detail fields
-        $product_id = new TDBUniqueSearch('product_id[]', 'samples', 'Product', 'id', 'description');
+        $product_id = new TDBUniqueSearch('product_id[]', 'lavagem', 'Tipo_Servico', 'id', 'nome');
         $product_id->setMinLength(1);
         $product_id->setSize('100%');
-        $product_id->setMask('{description} ({id})');
+        $product_id->setMask('{nome} ({id})');
         $product_id->setChangeAction(new TAction(array($this, 'onChangeProduct')));
         
         $product_price = new TEntry('product_price[]');
@@ -62,12 +63,6 @@ class SaleMultiValueForm extends TPage
         $product_price->setSize('100%');
         $product_price->style = 'text-align: right';
         $product_price->setEditable(FALSE);
-        
-        $product_amount = new TEntry('product_amount[]');
-        $product_amount->setNumericMask(2,',','.', true);
-        $product_amount->setSize('100%');
-        $product_amount->setExitAction(new TAction(array($this, 'onUpdateTotal')));
-        $product_amount->style = 'text-align: right';
         
         $product_total = new TEntry('product_total[]');
         $product_total->setEditable(FALSE);
@@ -77,19 +72,17 @@ class SaleMultiValueForm extends TPage
         
         $this->form->addField($product_id);
         $this->form->addField($product_price);
-        $this->form->addField($product_amount);
         $this->form->addField($product_total);
         
         // detail
         $this->product_list = new TFieldList;
-        $this->product_list->addField( '<b>Product</b>', $product_id,     ['width' => '40%']);
-        $this->product_list->addField( '<b>Price</b>',   $product_price,  ['width' => '20%']);
-        $this->product_list->addField( '<b>Amount</b>',  $product_amount, ['width' => '20%']);
+        $this->product_list->addField( '<b>Produto</b>', $product_id,     ['width' => '40%']);
+        $this->product_list->addField( '<b>Valor</b>',   $product_price,  ['width' => '20%']);
         $this->product_list->addField( '<b>Total</b>',   $product_total,  ['width' => '20%', 'sum' => true]);
         $this->product_list-> width = '100%';
         $this->product_list->enableSorting();
         
-        $this->form->addFields( [new TFormSeparator('Products') ] );
+        $this->form->addFields( [new TFormSeparator('Produtos') ] );
         $this->form->addFields( [$this->product_list] );
         
         $this->form->addAction( _t('Save'),  new TAction( [$this, 'onSave'] ),  'fa:save green' );
@@ -165,7 +158,7 @@ class SaleMultiValueForm extends TPage
             
             try
             {
-                TTransaction::open('samples');
+                TTransaction::open('lavagem');
                 $product = Product::find($product_id);
                 $response->{'product_price_'.$unique_id} = number_format($product->sale_price,2,',', '.');
                 $response->{'product_amount_'.$unique_id} = '1,00';

@@ -4,15 +4,11 @@
   
 //</fileHeader>
 
-class Tipo_Servico extends TRecord
+class Ordem_Servico_Item extends TRecord
 {
-    const TABLENAME  = 'tipo_servico';
+    const TABLENAME  = 'ordem_servico_item';
     const PRIMARYKEY = 'id';
     const IDPOLICY   =  'max'; // {max, serial}
-    
-    const DELETEDAT  = 'deleted_at';
-    const CREATEDAT  = 'created_at';
-    const UPDATEDAT  = 'update_at';
     
     /**
      * Constructor method
@@ -20,11 +16,11 @@ class Tipo_Servico extends TRecord
     public function __construct($id = NULL)
     {
         parent::__construct($id);
-        parent::addAttribute('nome');
+        parent::addAttribute('tipo_servico_id');//FK Cliente
+        parent::addAttribute('ordem_servico_id');//FK Tipo Servico
         parent::addAttribute('valor');
-        parent::addAttribute('deleted_at');
-        parent::addAttribute('created_at');
-        parent::addAttribute('update_at');
+        parent::addAttribute('desconto');
+        parent::addAttribute('total');
         //<onAfterConstruct>
   
         //</onAfterConstruct>

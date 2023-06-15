@@ -128,7 +128,10 @@ class ClienteForm extends TPage
 
             //</beforeStoreAutoCode> //</blockLine>
 
+            TApplication::loadPage('ClienteHeaderList', 'onShow', $loadPageParam);
+
             $object->store(); // save the object //</blockLine>
+            
 
             //</afterStoreAutoCode> //</blockLine>
  //<generatedAutoCode>
