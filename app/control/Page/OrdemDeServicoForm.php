@@ -216,7 +216,7 @@ class OrdemDeServicoForm extends TPage
             
             $id = (int) $param['id'];
             $sale = new Ordem_Servico($id);
-            $sale->date = $param['date'];
+            $sale->date = $param['data_hoje'];
             $sale->customer_id = $param['customer_id'];
             $sale->obs = $param['obs'];
             $total = 0;
