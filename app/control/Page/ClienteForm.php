@@ -8,8 +8,8 @@ class ClienteForm extends TPage
 {
     protected $form;
     private $formFields = [];
-    private static $database = 'lavagem';
-    private static $activeRecord = 'Cliente';
+    private static $database = 'samples';
+    private static $activeRecord = 'Customer';
     private static $primaryKey = 'id';
     private static $formName = 'form_ClienteForm';
 
@@ -40,10 +40,10 @@ class ClienteForm extends TPage
         //</onBeginPageCreation>
 
         $id = new TEntry('id');
-        $nome = new TEntry('nome');
+        $nome = new TEntry('name');
         $veiculo = new TEntry('veiculo');
         $placa = new TEntry('placa');
-        $endereco = new TEntry('endereco');
+        $endereco = new TEntry('address');
         $numero = new TEntry('numero');
         $complento = new TEntry('complento');
       
@@ -121,7 +121,7 @@ class ClienteForm extends TPage
 
             $this->form->validate(); // validate form data
 
-            $object = new Cliente(); // create an empty object //</blockLine>
+            $object = new Customer(); // create an empty object //</blockLine>
 
             $data = $this->form->getData(); // get form data as array
             $object->fromArray( (array) $data); // load the object with data
@@ -184,7 +184,7 @@ class ClienteForm extends TPage
                 $key = $param['key'];  // get the parameter $key
                 TTransaction::open(self::$database); // open a transaction
 
-                $object = new Cliente($key); // instantiates the Active Record //</blockLine>
+                $object = new Customer($key); // instantiates the Active Record //</blockLine>
 
                 //</beforeSetDataAutoCode> //</blockLine>
 

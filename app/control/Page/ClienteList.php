@@ -47,10 +47,12 @@ class ClienteList extends TPage
 		$this->datagrid->DisableDefaultClick();
 		
 		$this->datagrid->addQuickColumn('Id', 'id', 'center', '10%');
-		$this->datagrid->addQuickColumn('Nome', 'nome', 'center', '70%');
+		$this->datagrid->addQuickColumn('Nome', 'name', 'center', '70%');
 		$this->datagrid->addQuickColumn('Placa', 'placa', 'center', '20%');
 
 		//cria as ações da grid
+		$this->datagrid->addQuickAction('Ordem de serviço' ,new TDataGridAction(array('OrdemDeServicoForm1', 'onOrdem')), 'id', 'fas:shower' );//fa:edit blue
+
 		$this->datagrid->addQuickAction('Editar' ,new TDataGridAction(array('ClienteForm', 'onEdit')), 'id', 'fa:edit blue' );//fa:edit blue
 		
 		$this->datagrid->addQuickAction('Excluir', new TDataGridAction(array($this, 'onDelete')), 'id', 'far:trash-alt red' );//far:trash-alt red
@@ -101,10 +103,10 @@ class ClienteList extends TPage
 	{
 		try
 		{
-			TTransaction::open('lavagem');//db//db2//
+			TTransaction::open('samples');//db//db2//
 			
 			//var_dump(TSession::getValue('TS_cliente2'));
-			$rp_cliente = new TRepository('cliente');
+			$rp_cliente = new TRepository('Customer');
 			
 			$criteria = new TCriteria;
 			
@@ -112,7 +114,7 @@ class ClienteList extends TPage
 			//$criteria->setProperty('order','NOME');//NOME
 			$criteria->setProperty('order','id');//NOME
 			$criteria->setProperty('direction','ASC');
-			$criteria->setProperty('limit',2);
+			$criteria->setProperty('limit',5);
 			
 			$criteria->setProperties($param);
 			
@@ -150,7 +152,7 @@ class ClienteList extends TPage
 
             $this->pageNavigation->setCount ( $count );
             $this->pageNavigation->setProperties ( $param );
-            $this->pageNavigation->setlimit(2);
+            $this->pageNavigation->setlimit(5);
 			
 			TTransaction::close();
 			//$this->form->setData($data);
@@ -253,7 +255,7 @@ class ClienteList extends TPage
 			
 			if($data->nome)
 			{
-				$filter	= new TFilter('nome', 'LIKE', "%$data->nome%");
+				$filter	= new TFilter('name', 'LIKE', "%$data->nome%");
 				TSession::setValue('TS_localiza_nome', $filter);
 				TSession::setValue('TS_nome', $data->nome);
 			}

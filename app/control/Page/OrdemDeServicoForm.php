@@ -52,7 +52,7 @@ class OrdemDeServicoForm extends TPage
         $row3->layout = ['col-sm-6','col-sm-6'];
         
         // create detail fields
-        $product_id = new TDBUniqueSearch('product_id[]', 'lavagem', 'Tipo_Servico', 'id', 'nome');
+        $product_id = new TDBUniqueSearch('product_id[]', 'lavagem', 'tipo_servico', 'id', 'nome');
         $product_id->setMinLength(1);
         $product_id->setSize('100%');
         $product_id->setMask('{nome} ({id})');

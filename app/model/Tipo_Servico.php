@@ -22,6 +22,15 @@ class Tipo_Servico extends TRecord
         parent::__construct($id);
         parent::addAttribute('nome');
         parent::addAttribute('valor');
+
+        /*SAMPLE DB*/
+        parent::addAttribute('description');
+        parent::addAttribute('stock');
+        parent::addAttribute('sale_price');
+        parent::addAttribute('unity');
+        parent::addAttribute('photo_path');
+        /* SAMPLE DB */ 
+
         parent::addAttribute('deleted_at');
         parent::addAttribute('created_at');
         parent::addAttribute('update_at');
