@@ -30,6 +30,12 @@ class OrdemDeServicoForm extends TPage
         $placa          = new TEntry('placa');
         $veiculo        = new TEntry('veiculo');
         $data           = new TDate('data_hoje');
+
+        $db_multi  = new TDBMultiSearch('db_multi', 'samples', 'Category', 'id', 'name');
+        $db_unique = new TDBUniqueSearch('db_unique', 'samples', 'Category', 'id', 'name');
+        
+        $db_multi->setMask('{name} ({id})');
+        $db_unique->setMask('{name} ({id})');
         
         $id->setSize(100);
         $nome->setSize('100%');
@@ -42,6 +48,9 @@ class OrdemDeServicoForm extends TPage
         //$date->addValidation('Date', new TRequiredValidator);
         
         //$label_date   = new TLabel('Date (*)');
+        $row1 = $this->form->addFields([new TLabel("Multi:", null, '14px', null, '100%'),$db_multi],[new TLabel("Uniqui:", null, '14px', null, '100%'),$db_unique]);
+        $row1->layout = ['col-sm-6','col-sm-6'];
+
         $row1 = $this->form->addFields([new TLabel("Id:", null, '14px', null, '100%'),$id],[new TLabel("Data:", null, '14px', null, '100%'),$data]);
         $row1->layout = ['col-sm-6','col-sm-6'];
 

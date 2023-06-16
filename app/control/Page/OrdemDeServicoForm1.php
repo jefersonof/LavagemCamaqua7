@@ -23,7 +23,7 @@ class OrdemDeServicoForm1 extends TPage
         */
         // creates the form
         $this->form = new BootstrapFormBuilder('form_Sale');
-        $this->form->setFormTitle('Sale');
+        $this->form->setFormTitle('Ordem de Serviço');
         $this->form->setProperty('style', 'margin:0;border:0');
         $this->form->setClientValidation(true);
         
@@ -32,18 +32,19 @@ class OrdemDeServicoForm1 extends TPage
         $placa       = new TEntry('placa');
         $veiculo     = new TEntry('veiculo');
         $date        = new TDate('date');
-        $customer_id = new TDBUniqueSearch('customer_id', 'samples', 'Customer', 'id', 'name');
+        //$customer_id = new TDBUniqueSearch('customer_id', 'samples', 'Customer', 'id', 'name');
+        $customer_id = new TEntry('name');
         $obs         = new TText('obs');
         
         $button = new TActionLink('', new TAction(['ClienteForm', 'onEdit']), 'green', null, null, 'fa:plus-circle');
         $button->class = 'btn btn-default inline-button';
         $button->title = _t('New');
-        $customer_id->after($button);
+        //$customer_id->after($button);
         
         // detail fields
         $product_detail_unqid      = new THidden('product_detail_uniqid');
         $product_detail_id         = new THidden('product_detail_id');
-        $product_detail_product_id = new TDBUniqueSearch('product_detail_product_id', 'samples', 'Product', 'id', 'description');
+        $product_detail_product_id = new TDBUniqueSearch('product_detail_product_id', 'samples', 'Product', 'id', 'description');//'db_unique', 'samples', 'Product', 'sale_price', 'description'
         $product_detail_price      = new TEntry('product_detail_price');
         $product_detail_amount     = new TEntry('product_detail_amount');
         $product_detail_discount   = new TEntry('product_detail_discount');
@@ -51,19 +52,23 @@ class OrdemDeServicoForm1 extends TPage
         
         // adjust field properties
         $id->setEditable(false);
+        $customer_id->setEditable(false);
+        $veiculo->setEditable(false);
+        $placa->setEditable(false);
         //$customer_id->setSize('100%');
         $customer_id->setSize('calc(100% - 30px)');
-        $customer_id->setMinLength(1);
+        //$customer_id->setMinLength(1);
         $date->setSize('100%');
         $obs->setSize('100%', 80);
         $product_detail_product_id->setSize('100%');
         $product_detail_product_id->setMinLength(1);
+        $product_detail_product_id->setMask(' {description}  -  ({sale_price}) ');
         $product_detail_price->setSize('100%');
         $product_detail_amount->setSize('100%');
         $product_detail_discount->setSize('100%');
         
         // add validations
-        $date->addValidation('Date', new TRequiredValidator);
+        //$date->addValidation('Date', new TRequiredValidator);
         $customer_id->addValidation('Customer', new TRequiredValidator);
         
         // change action
@@ -71,8 +76,8 @@ class OrdemDeServicoForm1 extends TPage
         
         // add master form fields
         $this->form->addFields( [new TLabel('ID')], [$id], 
-                                [new TLabel('Date (*)', '#FF0000')], [$date] );
-        $this->form->addFields( [new TLabel('Customer (*)', '#FF0000')], [$customer_id ] );
+                                [new TLabel('Data ')], [$date] );
+        $this->form->addFields( [new TLabel('Nome')], [$customer_id ] );
         $this->form->addFields( [new TLabel('Veículo')], [$veiculo], 
                                 [new TLabel('Placa', '#FF0000')], [$placa] );
         $this->form->addFields( [new TLabel('Obs')], [$obs] );
@@ -103,7 +108,7 @@ class OrdemDeServicoForm1 extends TPage
         $col_amount = new TDataGridColumn( 'amount', 'Amount', 'left', '10%');
         $col_price  = new TDataGridColumn( 'sale_price', 'Price', 'right', '15%');
         $col_disc   = new TDataGridColumn( 'discount', 'Discount', 'right', '15%');
-        $col_subt   = new TDataGridColumn( '={amount} * ( {sale_price} - {discount} )', 'Subtotal', 'right', '20%');
+        $col_subt   = new TDataGridColumn( '=( {sale_price} - {discount} )', 'Subtotal', 'right', '20%');
         
         $this->product_list->addColumn( $col_uniq );
         $this->product_list->addColumn( $col_id );
@@ -221,6 +226,7 @@ class OrdemDeServicoForm1 extends TPage
         $cliente = new Customer($param['key']);
 
         $data->customer_id = $cliente->id;
+        $data->name        = $cliente->name;
         $data->veiculo     = $cliente->veiculo;
         $data->placa       = $cliente->placa;
 
@@ -242,7 +248,7 @@ class OrdemDeServicoForm1 extends TPage
             $this->form->validate();
             $data = $this->form->getData();
             
-            if( (! $data->product_detail_product_id) || (! $data->product_detail_amount) || (! $data->product_detail_price) )
+            if( (! $data->product_detail_product_id) || (! $data->product_detail_price) )
             {
                 throw new Exception('The fields Product, Amount and Price are required');
             }
@@ -390,7 +396,7 @@ class OrdemDeServicoForm1 extends TPage
                     $item->sale_price  = (float) $param['products_list_sale_price'][$key];
                     $item->amount      = (float) $param['products_list_amount'][$key];
                     $item->discount    = (float) $param['products_list_discount'][$key];
-                    $item->total       = ( $item->sale_price * $item->amount ) - $item->discount;
+                    $item->total       =  $item->sale_price - $item->discount;
                     
                     $item->sale_id = $sale->id;
                     $item->store();
@@ -427,7 +433,7 @@ class OrdemDeServicoForm1 extends TPage
         {
             foreach ($param['list_data'] as $row)
             {
-                $total += ( floatval($row['sale_price']) - floatval($row['discount'])) *  floatval($row['amount']);
+                $total +=  floatval($row['sale_price']) - floatval($row['discount']);
             }
         }
         
