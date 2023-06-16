@@ -33,7 +33,7 @@ class OrdemDeServicoForm1 extends TPage
         $veiculo     = new TEntry('veiculo');
         $date        = new TDate('date');
         //$customer_id = new TDBUniqueSearch('customer_id', 'samples', 'Customer', 'id', 'name');
-        $cliente_id  = new TEntry('cliente_id');
+        $cliente_id  = new THidden('cliente_id');
         $customer_id = new TEntry('name');
         $phone       = new TEntry('phone');
         $obs         = new TText('obs');
@@ -83,7 +83,7 @@ class OrdemDeServicoForm1 extends TPage
         $product_detail_product_id->setChangeAction(new TAction([$this,'onProductChange']));
         
         // add master form fields
-        $this->form->addFields( [new TLabel('ID cliente')], [$cliente_id]);
+        $this->form->addFields( [], [$cliente_id]);
         $this->form->addFields( [new TLabel('ID')], [$id], 
                                 [new TLabel('Data ')], [$date] );
         $this->form->addFields( [new TLabel('Nome')], [$customer_id ],
