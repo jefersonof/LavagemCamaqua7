@@ -52,7 +52,7 @@ class ClienteList extends TPage
 
 		//cria as ações da grid
 		$this->datagrid->addQuickAction('Ordem de serviço' ,new TDataGridAction(array('OrdemDeServicoForm1', 'onOrdem')), 'id', 'fas:shower' );//fa:edit blue
-
+		
 		$this->datagrid->addQuickAction('Editar' ,new TDataGridAction(array('ClienteForm', 'onEdit')), 'id', 'fa:edit blue' );//fa:edit blue
 		
 		$this->datagrid->addQuickAction('Excluir', new TDataGridAction(array($this, 'onDelete')), 'id', 'far:trash-alt red' );//far:trash-alt red
@@ -277,21 +277,6 @@ class ClienteList extends TPage
 				TSession::setValue('TS_placa', NULL);
 			}//MATR_INTERNA
 
-			/*if($data->NOME)
-			{
-				//$data->NOME = utf8_decode($data->NOME);
-				$i = $data->NOME;
-				$data->NOME = $this->onTiraAcentos($i);
-				$filter	= new TFilter($this->onTiraAcentos('NOME'), 'LIKE', "%$data->NOME%");
-				TSession::setValue('TS_localiza_nome', $filter);
-				$data->NOME = utf8_encode($data->NOME);
-				TSession::setValue('TS_relacao_nome', $data->NOME);
-			}
-			else
-			{
-				TSession::setValue('TS_localiza_nome', NULL);
-				TSession::setValue('TS_relacao_nome', NULL);
-			}//NOME*/
 			
 			$param = array();
 			$param['offset'] = 0;

@@ -25,32 +25,11 @@
               </menuitem>
               <menuitem label='Ordem de Serviço'><!--Novo serviço-->
                   <icon>fas:shower</icon>
-                  <action>SystemAdministrationDashboard</action>
-              </menuitem>
-              <menuitem label='Ordem de Serviço'><!--Lista de serviço-->
-                  <icon>fas:shower</icon>
-                  <action>SystemAdministrationDashboard</action>
+                  <action>ClienteList</action>
               </menuitem> 
         </menu>
     </menuitem>
 
-    <menuitem label='Serviços'>
-        <icon>fa:car #009688</icon> <!--user-plus -->
-        <menu>
-              <menuitem label='Cadastro de Serviço'><!--add serviço-->
-                  <icon>fas:plus fa-fw</icon>
-                  <action>ClienteForm</action>
-              </menuitem>
-              <menuitem label='Ordem de Serviço'><!--Novo serviço-->
-                  <icon>fas:shower</icon>
-                  <action>SystemAdministrationDashboard</action>
-              </menuitem>
-              <menuitem label='Ordem de Serviço'><!--Lista de serviço-->
-                  <icon>fas:shower</icon>
-                  <action>SystemAdministrationDashboard</action>
-              </menuitem> 
-        </menu>
-    </menuitem>
     <menuitem label='_t{Administration}'>
         <icon>fas:home fa-fw</icon>
         <menu>

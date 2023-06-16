@@ -33,7 +33,9 @@ class OrdemDeServicoForm1 extends TPage
         $veiculo     = new TEntry('veiculo');
         $date        = new TDate('date');
         //$customer_id = new TDBUniqueSearch('customer_id', 'samples', 'Customer', 'id', 'name');
+        $cliente_id  = new TEntry('cliente_id');
         $customer_id = new TEntry('name');
+        $phone       = new TEntry('phone');
         $obs         = new TText('obs');
         
         $button = new TActionLink('', new TAction(['ClienteForm', 'onEdit']), 'green', null, null, 'fa:plus-circle');
@@ -53,15 +55,21 @@ class OrdemDeServicoForm1 extends TPage
         // adjust field properties
         $id->setEditable(false);
         $customer_id->setEditable(false);
+        $phone->setEditable(false);
         $veiculo->setEditable(false);
         $placa->setEditable(false);
+        $date->setEditable(false);
         //$customer_id->setSize('100%');
-        $customer_id->setSize('calc(100% - 30px)');
+        $id->setSize('calc(70%)');
+        $customer_id->setSize('calc(120%)');
+        $veiculo->setSize('calc(120%)');
+        $phone->setSize('calc(80% - 10px)');
         //$customer_id->setMinLength(1);
         $date->setSize('100%');
         $obs->setSize('100%', 80);
         $product_detail_product_id->setSize('100%');
         $product_detail_product_id->setMinLength(1);
+        $date->setMask('dd/mm/yyyy');
         $product_detail_product_id->setMask(' {description}  -  ({sale_price}) ');
         $product_detail_price->setSize('100%');
         $product_detail_amount->setSize('100%');
@@ -75,21 +83,22 @@ class OrdemDeServicoForm1 extends TPage
         $product_detail_product_id->setChangeAction(new TAction([$this,'onProductChange']));
         
         // add master form fields
+        $this->form->addFields( [new TLabel('ID cliente')], [$cliente_id]);
         $this->form->addFields( [new TLabel('ID')], [$id], 
                                 [new TLabel('Data ')], [$date] );
-        $this->form->addFields( [new TLabel('Nome')], [$customer_id ] );
+        $this->form->addFields( [new TLabel('Nome')], [$customer_id ],
+                                [new TLabel('Telefone')], [$phone ], );
         $this->form->addFields( [new TLabel('Veículo')], [$veiculo], 
-                                [new TLabel('Placa', '#FF0000')], [$placa] );
+                                [new TLabel('Placa')], [$placa] );
         $this->form->addFields( [new TLabel('Obs')], [$obs] );
         
-        $this->form->addContent( ['<h4>Details</h4><hr>'] );
+        $this->form->addContent( ['<h5>Detalhes do Serviço</h5><hr>'] );
         $this->form->addFields( [ $product_detail_unqid], [$product_detail_id] );
-        $this->form->addFields( [ new TLabel('Product (*)', '#FF0000') ], [$product_detail_product_id],
-                                [ new TLabel('Amount(*)', '#FF0000') ],   [$product_detail_amount] );
-        $this->form->addFields( [ new TLabel('Price (*)', '#FF0000') ],   [$product_detail_price],
-                                [ new TLabel('Discount')],                [$product_detail_discount] );
+        $this->form->addFields( [ new TLabel('Serviço') ], [$product_detail_product_id]);
+        $this->form->addFields( [ new TLabel('Valor') ],   [$product_detail_price],
+                                [ new TLabel('Desconto')], [$product_detail_discount] );
         
-        $add_product = TButton::create('add_product', [$this, 'onProductAdd'], 'Register', 'fa:plus-circle green');
+        $add_product = TButton::create('add_product', [$this, 'onProductAdd'], 'Adicionar', 'fa:plus-circle green');
         $add_product->getAction()->setParameter('static','1');
         $this->form->addFields( [], [$add_product] );
         
@@ -103,18 +112,16 @@ class OrdemDeServicoForm1 extends TPage
         
         $col_uniq   = new TDataGridColumn( 'uniqid', 'Uniqid', 'center', '10%');
         $col_id     = new TDataGridColumn( 'id', 'ID', 'center', '10%');
-        $col_pid    = new TDataGridColumn( 'product_id', 'Prd', 'center', '10%');
-        $col_descr  = new TDataGridColumn( 'product_id', 'Product', 'left', '30%');
-        $col_amount = new TDataGridColumn( 'amount', 'Amount', 'left', '10%');
-        $col_price  = new TDataGridColumn( 'sale_price', 'Price', 'right', '15%');
-        $col_disc   = new TDataGridColumn( 'discount', 'Discount', 'right', '15%');
-        $col_subt   = new TDataGridColumn( '=( {sale_price} - {discount} )', 'Subtotal', 'right', '20%');
+        $col_pid    = new TDataGridColumn( 'product_id', 'Código', 'center', '10%');
+        $col_descr  = new TDataGridColumn( 'product_id', 'Serviço', 'left', '40%');
+        $col_price  = new TDataGridColumn( 'sale_price', 'Valor', 'right', '15%');
+        $col_disc   = new TDataGridColumn( 'discount', 'Desconto', 'right', '15%');
+        $col_subt   = new TDataGridColumn( '=( {sale_price} - {discount} )', 'Total', 'right', '20%');
         
         $this->product_list->addColumn( $col_uniq );
         $this->product_list->addColumn( $col_id );
         $this->product_list->addColumn( $col_pid );
         $this->product_list->addColumn( $col_descr );
-        $this->product_list->addColumn( $col_amount );
         $this->product_list->addColumn( $col_price );
         $this->product_list->addColumn( $col_disc );
         $this->product_list->addColumn( $col_subt );
@@ -168,6 +175,34 @@ class OrdemDeServicoForm1 extends TPage
         $container->add($this->form);
         parent::add($container);
     }
+
+     /**
+     * Clear form
+     * @param $param URL parameters
+     */
+    function onOrdem($param)
+    {
+        TTransaction::open('samples');
+
+        $this->form->clear();
+        $data = $this->form->getData();
+
+        $cliente = new Customer($param['key']);
+
+        $data->cliente_id  = $cliente->id;
+        $data->customer_id = $cliente->id;
+        $data->name        = $cliente->name;
+        $data->veiculo     = $cliente->veiculo;
+        $data->placa       = $cliente->placa;
+        $data->phone       = $cliente->phone;
+        $data->date        = date("d/m/y"); 
+
+        // send data, do not fire change/exit events
+        TForm::sendData( 'form_Sale', $data, false, false );
+
+        TTransaction::close();
+
+    }
     
     /**
      * Pre load some data
@@ -212,30 +247,6 @@ class OrdemDeServicoForm1 extends TPage
         $this->form->clear();
     }
 
-     /**
-     * Clear form
-     * @param $param URL parameters
-     */
-    function onOrdem($param)
-    {
-        TTransaction::open('samples');
-
-        $this->form->clear();
-        $data = $this->form->getData();
-
-        $cliente = new Customer($param['key']);
-
-        $data->customer_id = $cliente->id;
-        $data->name        = $cliente->name;
-        $data->veiculo     = $cliente->veiculo;
-        $data->placa       = $cliente->placa;
-
-        // send data, do not fire change/exit events
-        TForm::sendData( 'form_Sale', $data, false, false );
-
-        TTransaction::close();
-
-    }
     
     /**
      * Add a product into item list
@@ -258,7 +269,6 @@ class OrdemDeServicoForm1 extends TPage
             $grid_data = ['uniqid'      => $uniqid,
                           'id'          => $data->product_detail_id,
                           'product_id'  => $data->product_detail_product_id,
-                          'amount'      => $data->product_detail_amount,
                           'sale_price'  => $data->product_detail_price,
                           'discount'    => $data->product_detail_discount];
             
@@ -273,7 +283,6 @@ class OrdemDeServicoForm1 extends TPage
             $data->product_detail_id         = '';
             $data->product_detail_product_id = '';
             $data->product_detail_name       = '';
-            $data->product_detail_amount     = '';
             $data->product_detail_price      = '';
             $data->product_detail_discount   = '';
             
@@ -297,7 +306,6 @@ class OrdemDeServicoForm1 extends TPage
         $data->product_detail_uniqid     = $param['uniqid'];
         $data->product_detail_id         = $param['id'];
         $data->product_detail_product_id = $param['product_id'];
-        $data->product_detail_amount     = $param['amount'];
         $data->product_detail_price      = $param['sale_price'];
         $data->product_detail_discount   = $param['discount'];
         
@@ -311,11 +319,12 @@ class OrdemDeServicoForm1 extends TPage
      */
     public static function onDeleteItem( $param )
     {
+
+
         $data = new stdClass;
         $data->product_detail_uniqid     = '';
         $data->product_detail_id         = '';
         $data->product_detail_product_id = '';
-        $data->product_detail_amount     = '';
         $data->product_detail_price      = '';
         $data->product_detail_discount   = '';
         
@@ -371,7 +380,7 @@ class OrdemDeServicoForm1 extends TPage
         try
         {
             TTransaction::open('samples');
-            
+           
             $data = $this->form->getData();
             $this->form->validate();
             
@@ -382,6 +391,7 @@ class OrdemDeServicoForm1 extends TPage
             {
                 $sale->status_id = SaleStatus::orderBy('id')->take(1)->first()->id;
             }
+            $sale->customer_id =  $data->cliente_id;
             $sale->store();
             
             SaleItem::where('sale_id', '=', $sale->id)->delete();
@@ -394,7 +404,6 @@ class OrdemDeServicoForm1 extends TPage
                     $item = new SaleItem;
                     $item->product_id  = $item_id;
                     $item->sale_price  = (float) $param['products_list_sale_price'][$key];
-                    $item->amount      = (float) $param['products_list_amount'][$key];
                     $item->discount    = (float) $param['products_list_discount'][$key];
                     $item->total       =  $item->sale_price - $item->discount;
                     
@@ -429,7 +438,7 @@ class OrdemDeServicoForm1 extends TPage
         //echo '<pre>';var_dump($param);
         $total = 0;
         
-        if ($param['list_data'])
+        if(isset($param['list_data']))
         {
             foreach ($param['list_data'] as $row)
             {
