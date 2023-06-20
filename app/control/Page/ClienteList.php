@@ -26,7 +26,6 @@ class ClienteList extends TPage
 
 		//cria o botão
 		$btn_fechar = TButton::create('btn_fechar', array($this, 'onReload'), 'Fechar', 'fa: fa-power-off red');			
-		$btn_limpar = TButton::create('btn_limpar', array($this, 'onClear'), 'Limpar', 'fa:eraser red');
 		
 		//formatação
 		$nome->setSize('100%');
@@ -40,6 +39,7 @@ class ClienteList extends TPage
 		//add as ações do form
 		$this->form->addAction('Pesquisar' ,new TAction(array($this, 'onSearch')), 'fa:search');
 		$this->form->addAction('limpar' ,new TAction(array($this, 'onClear')), 'fa:eraser red');
+		$this->form->addAction('Cadastrar Cliente' ,new TAction(array('ClienteForm', 'onEdit')), 'fa:eraser red');
 		
 		//cria a grid
 		$this->datagrid = new BootstrapDatagridWrapper(new TQuickGrid);
@@ -48,7 +48,7 @@ class ClienteList extends TPage
 		
 		$this->datagrid->addQuickColumn('Id', 'id', 'center', '10%');
 		$this->datagrid->addQuickColumn('Nome', 'name', 'center', '70%');
-		$this->datagrid->addQuickColumn('Placa', 'placa', 'center', '20%');
+		$this->datagrid->addQuickColumn('Placa', 'plate', 'center', '20%');
 
 		//cria as ações da grid
 		$this->datagrid->addQuickAction('Ordem de serviço' ,new TDataGridAction(array('OrdemDeServicoForm1', 'onOrdem')), 'id', 'fas:shower' );//fa:edit blue
@@ -60,7 +60,7 @@ class ClienteList extends TPage
 		$this->datagrid->createModel();
 		
 		//informa os campos do form
-		$this->formFields =  array($nome, $placa, $btn_fechar, $btn_limpar);
+		$this->formFields =  array($nome, $placa, $btn_fechar);
 		
 		//add os campos no form
 		$this->form->setFields($this->formFields);
@@ -79,7 +79,7 @@ class ClienteList extends TPage
 		$painel->add($this->pageNavigation);
 		
 		//add os btn no footer da pagina
-		$painel->addFooter(THBox::pack($btn_fechar, $btn_limpar ));
+		$painel->addFooter(THBox::pack());
 		
 		// ativar a rolagem horizontal dentro do corpo do painel
         $painel->getBody()->style = "overflow-x:auto;";
@@ -103,7 +103,7 @@ class ClienteList extends TPage
 	{
 		try
 		{
-			TTransaction::open('samples');//db//db2//
+			TTransaction::open('lavagem');//samples
 			
 			//var_dump(TSession::getValue('TS_cliente2'));
 			$rp_cliente = new TRepository('Customer');
@@ -113,7 +113,7 @@ class ClienteList extends TPage
 			//set as propriedades
 			//$criteria->setProperty('order','NOME');//NOME
 			$criteria->setProperty('order','id');//NOME
-			$criteria->setProperty('direction','ASC');
+			$criteria->setProperty('direction','DESC');
 			$criteria->setProperty('limit',5);
 			
 			$criteria->setProperties($param);
@@ -196,12 +196,12 @@ class ClienteList extends TPage
 	*/
 	public function onDelete($param)
 	{
-		TTransaction::open('lavagem');//db2
+		TTransaction::open('lavagem');//samples
 		
 		$key = $param['key'];
-		$cliente = new cliente($key);
+		$cliente = new Customer($key);
 		
-		$nome = $cliente->NOME;
+		$nome = $cliente->name;
 		
 		$onsim = new TAction(array($this, 'onSimDelete'));
 		$onsim->setParameter('id', $key );
@@ -219,9 +219,9 @@ class ClienteList extends TPage
 	{
 		try
 		{
-			TTransaction::open('lavagem');
+			TTransaction::open('lavagem');//samples
 			
-			$rp_cliente = new TRepository('cliente');
+			$rp_cliente = new TRepository('Customer');
 			
 			$criteria = new TCriteria;
 			$criteria->add(new TFilter('id', '=', $param['id'] ));
@@ -267,7 +267,7 @@ class ClienteList extends TPage
 			
 			if($data->placa)
 			{
-				$filter	= new TFilter('placa', 'LIKE', "%$data->placa%");
+				$filter	= new TFilter('plate', 'LIKE', "%$data->placa%");
 				TSession::setValue('TS_localiza_placa', $filter);
 				TSession::setValue('TS_placa', $data->placa);
 			}

@@ -29,8 +29,8 @@ class OrdemDeServicoForm1 extends TPage
         
         // master fields
         $id          = new TEntry('id');
-        $placa       = new TEntry('placa');
-        $veiculo     = new TEntry('veiculo');
+        $placa       = new TEntry('plate');
+        $veiculo     = new TEntry('car');
         $date        = new TDate('date');
         //$customer_id = new TDBUniqueSearch('customer_id', 'samples', 'Customer', 'id', 'name');
         $cliente_id  = new THidden('cliente_id');
@@ -46,7 +46,7 @@ class OrdemDeServicoForm1 extends TPage
         // detail fields
         $product_detail_unqid      = new THidden('product_detail_uniqid');
         $product_detail_id         = new THidden('product_detail_id');
-        $product_detail_product_id = new TDBUniqueSearch('product_detail_product_id', 'samples', 'Product', 'id', 'description');//'db_unique', 'samples', 'Product', 'sale_price', 'description'
+        $product_detail_product_id = new TDBUniqueSearch('product_detail_product_id', 'lavagem', 'Product', 'id', 'description');//'db_unique', 'samples', 'Product', 'sale_price', 'description'
         $product_detail_price      = new TEntry('product_detail_price');
         $product_detail_amount     = new TEntry('product_detail_amount');
         $product_detail_discount   = new TEntry('product_detail_discount');
@@ -70,6 +70,7 @@ class OrdemDeServicoForm1 extends TPage
         $product_detail_product_id->setSize('100%');
         $product_detail_product_id->setMinLength(1);
         $date->setMask('dd/mm/yyyy');
+        $date->setDataBaseMask('yyyy/mm/dd');
         $product_detail_product_id->setMask(' {description}  -  ({sale_price}) ');
         $product_detail_price->setSize('100%');
         $product_detail_amount->setSize('100%');
@@ -103,7 +104,7 @@ class OrdemDeServicoForm1 extends TPage
         $this->form->addFields( [], [$add_product] );
         
         $this->product_list = new BootstrapDatagridWrapper(new TDataGrid);
-        $this->product_list->setHeight(150);
+        $this->product_list->setHeight(70);
         $this->product_list->makeScrollable();
         $this->product_list->setId('products_list');
         $this->product_list->generateHiddenFields();
@@ -127,7 +128,7 @@ class OrdemDeServicoForm1 extends TPage
         $this->product_list->addColumn( $col_subt );
         
         $col_descr->setTransformer(function($value) {
-            return Product::findInTransaction('samples', $value)->description;
+            return Product::findInTransaction('lavagem', $value)->description;
         });
         
         $col_subt->enableTotal('sum', 'R$', 2, ',', '.');
@@ -182,20 +183,24 @@ class OrdemDeServicoForm1 extends TPage
      */
     function onOrdem($param)
     {
-        TTransaction::open('samples');
+        TTransaction::open('lavagem');
 
         $this->form->clear();
         $data = $this->form->getData();
 
+        $id_last = TSession::getValue('TS_idLast');
+
+        $key = $param['key'];
+        
         $cliente = new Customer($param['key']);
 
         $data->cliente_id  = $cliente->id;
         $data->customer_id = $cliente->id;
         $data->name        = $cliente->name;
-        $data->veiculo     = $cliente->veiculo;
-        $data->placa       = $cliente->placa;
+        $data->car         = $cliente->car;
+        $data->plate       = $cliente->plate;
         $data->phone       = $cliente->phone;
-        $data->date        = date("d/m/y"); 
+        $data->date        = date('d/m/Y'); 
 
         // send data, do not fire change/exit events
         TForm::sendData( 'form_Sale', $data, false, false );
@@ -224,7 +229,7 @@ class OrdemDeServicoForm1 extends TPage
         {
             try
             {
-                TTransaction::open('samples');
+                TTransaction::open('lavagem');
                 $product   = new Product($params['product_detail_product_id']);
                 TForm::sendData('form_Sale', (object) ['product_detail_price' => $product->sale_price ]);
                 TTransaction::close();
@@ -342,7 +347,7 @@ class OrdemDeServicoForm1 extends TPage
     {
         try
         {
-            TTransaction::open('samples');
+            TTransaction::open('lavagem');
             
             if (isset($param['key']))
             {
@@ -379,19 +384,16 @@ class OrdemDeServicoForm1 extends TPage
     {
         try
         {
-            TTransaction::open('samples');
+            TTransaction::open('lavagem');
            
             $data = $this->form->getData();
             $this->form->validate();
             
             $sale = new Sale;
             $sale->fromArray((array) $data);
-            
-            if (empty($sale->id))
-            {
-                $sale->status_id = SaleStatus::orderBy('id')->take(1)->first()->id;
-            }
+
             $sale->customer_id =  $data->cliente_id;
+            $sale->status_id   =  1;
             $sale->store();
             
             SaleItem::where('sale_id', '=', $sale->id)->delete();
@@ -418,7 +420,9 @@ class OrdemDeServicoForm1 extends TPage
             TForm::sendData('form_Sale', (object) ['id' => $sale->id]);
             
             TTransaction::close(); // close the transaction
-            new TMessage('info', TAdiantiCoreTranslator::translate('Record saved'));
+            //new TMessage('info', TAdiantiCoreTranslator::translate('Record saved'));
+            TToast::show('success', "Registro salvo", 'topRight', 'far:check-circle');
+            TApplication::loadPage('ClienteList', 'onClear');
         }
         catch (Exception $e) // in case of exception
         {

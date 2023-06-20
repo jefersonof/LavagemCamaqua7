@@ -1,10 +1,10 @@
 <?php
 return [
-   'host'  =>  "",
+   'host'  =>  "127.0.0.1",
     'port'  =>  "",
-    'name'  =>  "app/database/lavagem.db",
-    'user'  =>  "",
+    'name'  =>  "samples",
+    'user'  =>  "root",
     'pass'  =>  "",
-    'type'  =>  "sqlite",
+    'type'  =>  "mysql",
     'prep'  =>  "1"
 ];

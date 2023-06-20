@@ -3,11 +3,11 @@
  * Customer Active Record
  * @author  Pablo Dall'Oglio
  */
-class Customer extends TRecord
+class Customer1 extends TRecord
 {
-    const TABLENAME    = 'customer';
+    const TABLENAME    = 'customer1';
     const PRIMARYKEY   = 'id';
-    const IDPOLICY     =  'max'; // {max, serial}
+    const IDPOLICY     =  'serial'; // {max, serial}
     const CACHECONTROL = 'TAPCache';
     
     const CREATEDAT = 'created_at';
@@ -28,7 +28,6 @@ class Customer extends TRecord
       
         parent::addAttribute('car');
         parent::addAttribute('plate');
-        parent::addAttribute('taxi_app');
         parent::addAttribute('name');
         parent::addAttribute('address');
         parent::addAttribute('complement');
@@ -37,42 +36,11 @@ class Customer extends TRecord
         parent::addAttribute('status');
         parent::addAttribute('email');
         parent::addAttribute('gender');
-        parent::addAttribute('category_id');
         parent::addAttribute('date_create');
     }
 
+    
    
-    
-    /**
-     * Returns the Customer category name
-     * Sample: print $customer->category_name;
-     */
-    public function get_category_name()
-    {
-        if (empty($this->category))
-        {
-            $this->category = new Category($this->category_id);
-        }
-        
-        return $this->category->name;
-    }
-    
-    /**
-     * Encapsulate the birthdate property
-     * Sample: $customer->birthdate = 'March, 8';
-     */
-    /*public function set_birthdate($value)
-    {
-        $parts = explode('-', $value);
-        if (checkdate($parts[1], $parts[2], $parts[0]))
-        {
-            $this->data['birthdate'] = $value;
-        }
-        else
-        {
-            throw new Exception("Cannot set '{$value}' in birthdate");
-        }
-    }*/
     
     /**
      * Returns the customer sales
@@ -82,34 +50,6 @@ class Customer extends TRecord
         return Sale::getCustomerSales($this->id);
     }
     
-   
-    /**
-     * Method set_category
-     * Sample of usage: $customer->category = $object;
-     * @param $object Instance of Category
-     */
-    public function set_category(Category $object)
-    {
-        $this->category = $object;
-        $this->category_id = $object->id;
-    }
-    
-    /**
-     * Method get_category
-     * Sample of usage: $customer->category->attribute;
-     * @returns Category instance
-     */
-    public function get_category()
-    {
-        // loads the associated object
-        if (empty($this->category))
-            $this->category = new Category($this->category_id);
-    
-        // returns the associated object
-        return $this->category;
-    }
-    
-
     /**
      * Reset aggregates
      */
@@ -118,8 +58,8 @@ class Customer extends TRecord
         $this->skills = array();
         $this->contacts = array();
     }
-    
-    /**
+
+     /**
      * Method addContact
      * Add a Contact to the Customer
      * @param $object Instance of Contact
@@ -129,7 +69,8 @@ class Customer extends TRecord
         $this->contacts[] = $object;
     }
     
-    /**
+
+     /**
      * Method getContacts
      * Return the Customer' Contact's
      * @return Collection of Contact
@@ -138,7 +79,7 @@ class Customer extends TRecord
     {
         return $this->contacts;
     }
-
+    
     /**
      * Method addSkill
      * Add a Skill to the Customer
@@ -192,7 +133,7 @@ class Customer extends TRecord
     {
         $id = isset($id) ? $id : $this->id;
         parent::deleteComposite('CustomerSkill', 'customer_id', $id);
-        parent::deleteComposite('Contact', 'customer_id', $id);
+        //parent::deleteComposite('Contact', 'customer_id', $id);
     
         // delete the object itself
         parent::delete($id);

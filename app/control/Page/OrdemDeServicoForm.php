@@ -31,8 +31,8 @@ class OrdemDeServicoForm extends TPage
         $veiculo        = new TEntry('veiculo');
         $data           = new TDate('data_hoje');
 
-        $db_multi  = new TDBMultiSearch('db_multi', 'samples', 'Category', 'id', 'name');
-        $db_unique = new TDBUniqueSearch('db_unique', 'samples', 'Category', 'id', 'name');
+        $db_multi  = new TDBMultiSearch('db_multi', 'lavagem', 'Category', 'id', 'name');
+        $db_unique = new TDBUniqueSearch('db_unique', 'lavagem', 'Category', 'id', 'name');
         
         $db_multi->setMask('{name} ({id})');
         $db_unique->setMask('{name} ({id})');

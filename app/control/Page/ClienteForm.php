@@ -8,7 +8,7 @@ class ClienteForm extends TPage
 {
     protected $form;
     private $formFields = [];
-    private static $database = 'samples';
+    private static $database = 'lavagem';// samples
     private static $activeRecord = 'Customer';
     private static $primaryKey = 'id';
     private static $formName = 'form_ClienteForm';
@@ -39,44 +39,53 @@ class ClienteForm extends TPage
 
         //</onBeginPageCreation>
 
-        $id = new TEntry('id');
-        $nome = new TEntry('name');
-        $veiculo = new TEntry('veiculo');
-        $placa = new TEntry('placa');
-        $endereco = new TEntry('address');
-        $numero = new TEntry('numero');
-        $complento = new TEntry('complento');
+        $id          = new THidden('id');
+        $nome        = new TEntry('name');
+        $veiculo     = new TEntry('car');
+        $placa       = new TEntry('plate');
+        $phone       = new TEntry('phone');
+        $endereco    = new TEntry('address');
+        $complement  = new TEntry('complement');
+        $taxi_app    = new TDBRadioGroup('taxi_app', 'lavagem', 'Category', 'id', '{name}', 'id');;
+        $date_create = new TDate('date_create');
       
         $id->setEditable(false);
+        $taxi_app->setLayout('horizontal');
+        $taxi_app->setValue(1);
+        $options = [1 => 'Padrão', 2 => 'Tax ou App'];
+        
         
         $placa->setMaxLength(8);
+        $phone->setMaxLength(10);
         $nome->setMaxLength(255);
-        $numero->setMaxLength(10);
         $veiculo->setMaxLength(400);
         $endereco->setMaxLength(400);
-        $complento->setMaxLength(255);
+        $complement->setMaxLength(255);
 
         $id->setSize(100);
         $nome->setSize('100%');
         $placa->setSize('100%');
-        $numero->setSize('100%');
         $veiculo->setSize('100%');
         $endereco->setSize('100%');
-        $complento->setSize('100%');
+        $complement->setSize('100%');
+        $phone->setSize('100%');
+        $phone->setMask('99999-9999');
 
         //<onBeforeAddFieldsToForm>
 
         //</onBeforeAddFieldsToForm>
-        $row1 = $this->form->addFields([new TLabel("Id:", null, '14px', null, '100%'),$id],[new TLabel("Nome:", null, '14px', null, '100%'),$nome]);
+        $this->form->addFields([$id]);//Hidden
+        
+        $row1 = $this->form->addFields([new TLabel("Nome:", null, '14px', null, '100%'),$nome],[new TLabel("Telefone:", null, '14px', null, '100%'),$phone]);
         $row1->layout = ['col-sm-6','col-sm-6'];
 
         $row2 = $this->form->addFields([new TLabel("Veiculo:", null, '14px', null, '100%'),$veiculo],[new TLabel("Placa do Veículo:", null, '14px', null, '100%'),$placa]);
         $row2->layout = ['col-sm-6','col-sm-6'];
 
-        $row3 = $this->form->addFields([new TLabel("Endereco:", null, '14px', null, '100%'),$endereco],[new TLabel("Numero:", null, '14px', null, '100%'),$numero]);
+        $row3 = $this->form->addFields([new TLabel("Endereco:", null, '14px', null, '100%'),$endereco],[new TLabel("Complemento:", null, '14px', null, '100%'),$complement]);
         $row3->layout = ['col-sm-6','col-sm-6'];
 
-        $row4 = $this->form->addFields([new TLabel("Complento:", null, '14px', null, '100%'),$complento]);
+        $row4 = $this->form->addFields([new TLabel("Tipo de Cliente:", null, '14px', null, '100%'),$taxi_app]);
         $row4->layout = ['col-sm-12'];
 
         //<onAfterFieldsCreation>
@@ -106,6 +115,8 @@ class ClienteForm extends TPage
 
         //</onAfterPageCreation>
 
+
+
         parent::add($this->form);
 
     }
@@ -122,15 +133,25 @@ class ClienteForm extends TPage
             $this->form->validate(); // validate form data
 
             $object = new Customer(); // create an empty object //</blockLine>
-
+            
             $data = $this->form->getData(); // get form data as array
+
             $object->fromArray( (array) $data); // load the object with data
 
             //</beforeStoreAutoCode> //</blockLine>
 
-            TApplication::loadPage('ClienteHeaderList', 'onShow', $loadPageParam);
+            //TApplication::loadPage('OrdemDeServicoForm1', 'onOrdem');
+            //TApplication::loadPage('ClienteList', 'onClear', $loadPageParam);
 
+            if(empty($object->date_create))
+            {
+                $object->date_create = date('Y/m/d');
+            }
+            
             $object->store(); // save the object //</blockLine>
+
+            //TApplication::loadPage('OrdemDeServicoForm1', 'onOrdem');
+            TApplication::loadPage('ClienteList', 'onClear');
             
 
             //</afterStoreAutoCode> //</blockLine>
@@ -146,7 +167,7 @@ class ClienteForm extends TPage
 //</generatedAutoCode>
 
             // get the generated {PRIMARY_KEY}
-            $data->id = $object->id; //</blockLine>
+            //</blockLine>
 
             $this->form->setData($data); // fill form data
             TTransaction::close(); // close the transaction
@@ -196,6 +217,9 @@ class ClienteForm extends TPage
             else
             {
                 $this->form->clear();
+
+                $data->
+                $this->form->setData($data);
             }
         }
         catch (Exception $e) // in case of exception
