@@ -28,6 +28,7 @@ class OrdemDeServicoList extends TPage
         $this->setActiveRecord('Sale');         // defines the active record
         $this->setDefaultOrder('id', 'asc');    // defines the default order
         $this->addFilterField('id', '=', 'id'); // filterField, operator, formField
+        $this->addFilterField('date', '=', date('yyyy-mm-dd') ); // filterField, operator, formField
         $this->addFilterField('customer_id', '=', 'customer_id'); // filterField, operator, formField
         
         $this->addFilterField('date', '>=', 'date_from', function($value) {
@@ -171,7 +172,12 @@ class OrdemDeServicoList extends TPage
             TTransaction::open('lavagem');
             $sale = Sale::find($param['id']);
             $sale->status_id = $param['status_id'];
-            $sale->store();
+            //depois de finalizado, o status não pode sofrer alteração
+            if($sale->status_id == 2)
+            {
+                $sale->completion_date = date('y-m-d h:m:s');
+                $sale->store();
+            }
             TTransaction::close();
             
             $this->onReload($param);

@@ -39,7 +39,7 @@ class ClienteList extends TPage
 		//add as ações do form
 		$this->form->addAction('Pesquisar' ,new TAction(array($this, 'onSearch')), 'fa:search');
 		$this->form->addAction('limpar' ,new TAction(array($this, 'onClear')), 'fa:eraser red');
-		$this->form->addAction('Cadastrar Cliente' ,new TAction(array('ClienteForm', 'onEdit')), 'fa:eraser red');
+		$this->form->addAction('Cadastrar Cliente' ,new TAction(array('ClienteForm', 'onEdit')), 'fa:user plus red');
 		
 		//cria a grid
 		$this->datagrid = new BootstrapDatagridWrapper(new TQuickGrid);
@@ -47,9 +47,11 @@ class ClienteList extends TPage
 		$this->datagrid->DisableDefaultClick();
 		
 		$this->datagrid->addQuickColumn('Id', 'id', 'center', '10%');
-		$this->datagrid->addQuickColumn('Nome', 'name', 'center', '70%');
-		$this->datagrid->addQuickColumn('Placa', 'plate', 'center', '20%');
-
+		$this->datagrid->addQuickColumn('Nome', 'name', 'center', '50%');
+		$this->datagrid->addQuickColumn('Veículo', 'car', 'center', '20%');
+		$this->datagrid->addQuickColumn('Placa', 'plate', 'center', '10%');
+		$this->datagrid->addQuickColumn('Categoria', 'Category->name', 'center', '10%');
+		
 		//cria as ações da grid
 		$this->datagrid->addQuickAction('Ordem de serviço' ,new TDataGridAction(array('OrdemDeServicoForm1', 'onOrdem')), 'id', 'fas:shower' );//fa:edit blue
 		
@@ -140,6 +142,7 @@ class ClienteList extends TPage
 				foreach($obj_cliente as $obj_clientes)
 				{
 					//$obj_clientes->nome = utf8_encode($obj_clientes->NOME);
+					//$obj_clientes->taxi_app = $obj_clientes->category->name;
 					$this->datagrid->addItem($obj_clientes);
 					
 				}//foreach

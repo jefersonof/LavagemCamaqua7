@@ -188,7 +188,8 @@ class ClienteForm extends TPage
         {
             //</catchAutoCode> //</blockLine>
 
-            new TMessage('error', $e->getMessage()); // shows the exception error message
+            TToast::show('error', $e->getMessage(), 'topRight', 'far:check-circle');
+            //new TMessage('error', $e->getMessage()); // shows the exception error message
             $this->form->setData( $this->form->getData() ); // keep form data
             TTransaction::rollback(); // undo all pending operations
         }

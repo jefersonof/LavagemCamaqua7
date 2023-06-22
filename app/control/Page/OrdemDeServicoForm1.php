@@ -42,6 +42,9 @@ class OrdemDeServicoForm1 extends TPage
         $button->class = 'btn btn-default inline-button';
         $button->title = _t('New');
         //$customer_id->after($button);
+
+        $btn_salvar   = TButton::create('btn_salvar', array($this,'onSave'), 'Salvar','far:save');
+		$btn_salvar->class = 'btn btn-sm  btn-primary';//fa:floppy-o *onSave * onTeste
         
         // detail fields
         $product_detail_unqid      = new THidden('product_detail_uniqid');
@@ -104,7 +107,7 @@ class OrdemDeServicoForm1 extends TPage
         $this->form->addFields( [], [$add_product] );
         
         $this->product_list = new BootstrapDatagridWrapper(new TDataGrid);
-        $this->product_list->setHeight(70);
+        $this->product_list->setHeight(90);
         $this->product_list->makeScrollable();
         $this->product_list->setId('products_list');
         $this->product_list->generateHiddenFields();
@@ -166,14 +169,20 @@ class OrdemDeServicoForm1 extends TPage
         $col_subt->setTransformer( $format_value );
         
         $this->form->addHeaderActionLink( _t('Close'),  new TAction([__CLASS__, 'onClose'], ['static'=>'1']), 'fa:times red');
-        $this->form->addAction( 'Save',  new TAction([$this, 'onSave'], ['static'=>'1']), 'fa:save green');
-        $this->form->addAction( 'Clear', new TAction([$this, 'onClear']), 'fa:eraser red');
+
+        $this->formFields = array($btn_salvar, $add_product, $product_detail_unqid, $product_detail_id, $product_detail_product_id, $product_detail_price, $product_detail_discount, $placa, $veiculo, $date, $customer_id, $cliente_id, $phone, $obs); //, $numero_parcela, $valor_parc
+
+        $this->form->setFields( $this->formFields );
         
+        //painel
+		$painel = new TPanelGroup();
+		$painel->addFooter(THBox::pack($btn_salvar));
+		$painel->add($this->form);
         // create the page container
         $container = new TVBox;
         $container->style = 'width: 100%';
         //$container->add(new TXMLBreadCrumb('menu.xml', __CLASS__));
-        $container->add($this->form);
+        $container->add($painel);
         parent::add($container);
     }
 
@@ -352,8 +361,19 @@ class OrdemDeServicoForm1 extends TPage
             if (isset($param['key']))
             {
                 $key = $param['key'];
+
                 
                 $object = new Sale($key);
+
+                var_dump($object->status->id);
+                //exit;
+
+                //Desabilita o Editar depois que o serviço já foi finalizado
+                if($object->status->id == 2)
+                {   
+                    TButton::disableField('sale_id', 'btn_salvar');
+                }
+                
                 $sale_items = SaleItem::where('sale_id', '=', $object->id)->load();
                 
                 foreach( $sale_items as $item )
@@ -368,6 +388,9 @@ class OrdemDeServicoForm1 extends TPage
             else
             {
                 $this->form->clear();
+                
+                //Abilita o botão salvar
+                TSession::setValue('TS_editar', 'yes');
             }
         }
         catch (Exception $e)

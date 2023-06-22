@@ -1,9 +1,9 @@
 <menu>
 	<menuitem label='Cliente'>
-        <icon>fa:users</icon> <!--user-plus -->
+        <icon>fa:users #EEE8AA</icon> <!--user-plus -->
         <menu>
               <menuitem label='Cadastrar'>
-                  <icon>fa:user-plus</icon>
+                  <icon>fa:user-plus #EEE8AA</icon>
                   <action>ClienteForm</action>
               </menuitem>
               <!--<menuitem label='Cadastrar'>
@@ -11,26 +11,18 @@
                   <action>ClienteForm1</action>
               </menuitem>-->
               <menuitem label='Listar'>
-                  <icon>fa:list-ol</icon>
+                  <icon>fa:list-ol #EEE8AA</icon>
                   <action>ClienteList</action>
               </menuitem>
         </menu>
     </menuitem>
     <menuitem label='Serviços'>
         <icon>fa:car #009688</icon> <!--user-plus -->
-        <menu>              
-              <menuitem label='Ordem de Serviço'><!--Novo serviço-->
-                  <icon>fas:shower</icon>
-                  <action>OrdemDeServicoForm</action>
-              </menuitem>
+        <menu>
               <menuitem label='Listar'><!--Novo serviço-->
-                  <icon>fas:shower</icon>
+                  <icon>fas:shower #009688</icon>
                   <action>OrdemDeServicoList</action>
-              </menuitem>
-              <menuitem label='Ordem de Serviço'><!--Lista de serviço-->
-                  <icon>fas:shower</icon>
-                  <action>SystemAdministrationDashboard</action>
-              </menuitem> 
+              </menuitem>> 
         </menu>
     </menuitem>
 	

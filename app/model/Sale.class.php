@@ -25,6 +25,7 @@ class Sale extends TRecord
         parent::addAttribute('obs');
         parent::addAttribute('status_id');
         parent::addAttribute('customer_id');
+        parent::addAttribute('completion_date');
     }
 
     
