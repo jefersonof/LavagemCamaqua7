@@ -382,7 +382,20 @@ class OrdemDeServicoForm1 extends TPage
                     $row = $this->product_list->addItem( $item );
                     $row->id = $item->uniqid;
                 }
+                //pegar os dados do cliente
                 $this->form->setData($object);
+
+                //Atualiza os dados do formulário
+                $dadosFom = new StdClass;
+                $dadosFom->id    = $object->id;
+                $dadosFom->name  = $object->customer->name;
+                $dadosFom->phone = $object->customer->phone;
+                $dadosFom->car   = $object->customer->car;
+                $dadosFom->plate = $object->customer->plate;
+
+                //ADICIONA EM TELA AS VALORES
+		        TForm::sendData('form_Sale', $dadosFom);
+
                 TTransaction::close();
             }
             else
